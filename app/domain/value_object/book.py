@@ -4,6 +4,8 @@ from dataclasses import dataclass
 @dataclass(frozen=True)
 class BookVO:
 
+    description: str
+    title: str
     difficulty: Difficulty | None
 
     def __post_init__(self):
