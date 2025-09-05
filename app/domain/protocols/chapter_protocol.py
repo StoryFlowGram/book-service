@@ -3,7 +3,7 @@ from app.domain.entity.chapter import Chapter
 
 
 
-class ChapterProtocol:
+class AbstractChapterProtocol:
     @abstractmethod
     async def add(self, chapter: Chapter):
         ...

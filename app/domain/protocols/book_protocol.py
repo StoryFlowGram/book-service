@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional
-
-from app.domain.entity.book import Book
+from typing import Optional
 
 
-class BookProtocol(ABC):
+from app.domain.enum.difficulty import Difficulty
+
+class AbstractBookProtocol(ABC):
     @abstractmethod
     async def add(self):
         ...
@@ -14,11 +14,19 @@ class BookProtocol(ABC):
         ...
     
     @abstractmethod
-    async def list(self):
+    async def list(self, limit: int = 20, cursor: Optional[str] = None):
         ...
 
     @abstractmethod
-    async def update(self, book_id: int):
+    async def update(
+        self, 
+        book_id: int, 
+        title: Optional[str],
+        author: Optional[str],
+        description: Optional[str],
+        pic_url: Optional[str],
+        difficulty: Optional[Difficulty]
+    ):
         ...
 
     @abstractmethod
