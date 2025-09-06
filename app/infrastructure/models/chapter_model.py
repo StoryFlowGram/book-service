@@ -10,7 +10,7 @@ class Chapter(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     book_id: Mapped[int] = mapped_column(ForeignKey("book.id"))
     title: Mapped[str] = mapped_column(String(length=255), nullable=False)
-    order_number: Mapped[int] = mapped_column(Integer, nullable=False)
+    order_number: Mapped[int] = mapped_column(Integer, nullable=False, doc="Порядковый номер главы книги")
     word_count: Mapped[int] = mapped_column(Integer, nullable=False)
     s3_url: Mapped[str] = mapped_column(String, nullable=False)
 
