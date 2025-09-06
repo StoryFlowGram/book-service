@@ -1,12 +1,11 @@
 from dataclasses import dataclass
-from uuid import UUID
 
 
 @dataclass(frozen=True)
 class Chapter:
-    id: UUID
-    book_id: UUID
+    id: int
+    book_id: int
     title: str
-    order: int
+    order_number: int
     word_count: int
     s3_url: str
