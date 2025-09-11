@@ -1,9 +1,9 @@
 import pytest, pytest_asyncio
-import asyncio
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine, async_sessionmaker, AsyncSession
-
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine, async_sessionmaker
 from app.infrastructure.config.config import Config
 from app.infrastructure.database.base import Base
+from app.infrastructure.models.book_model import Book
+from app.infrastructure.models.chapter_model import Chapter
 
 @pytest.fixture(scope="session")
 def test_db_config():
