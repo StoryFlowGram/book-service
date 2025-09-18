@@ -5,9 +5,9 @@ from app.domain.enum.difficulty import Difficulty
 
 @dataclass(frozen=True)
 class BookDTO:
-    id: int
     title: str
     author: str
     description: str
     pic_url: str
+    id: Optional[int]
     difficulty: Optional[Difficulty]

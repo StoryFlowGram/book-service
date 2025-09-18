@@ -9,4 +9,4 @@ class DeleteBookUsecase:
         check_exist = await self.protocol.get(book_id)
         if not check_exist:
             raise Exception("Книга не найдена")
-        return self.protocol.delete(book_id)
+        return await self.protocol.delete(book_id)
