@@ -15,7 +15,6 @@ def orm_to_domain(orm: BookModel) -> BookDomain:
 
 def domain_to_orm(domain: BookDomain):
     return BookModel(
-        id=domain.id,
         title=domain.title,
         author=domain.author,
         description=domain.description,

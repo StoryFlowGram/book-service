@@ -14,7 +14,6 @@ def orm_to_domain(orm: ChapterModel) -> ChapterDomain:
 
 def domain_to_orm(domain: ChapterDomain) -> ChapterModel:
     return ChapterModel(
-        id=domain.id,
         book_id = domain.book_id,
         title = domain.title,
         order_number = domain.order_number,
