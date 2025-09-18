@@ -34,8 +34,19 @@ class AppConfig(BaseSettings):
     }
 
 
-class Config:
+class JWTConfig(BaseSettings):
+    JWT_ALGORITHM: str
+    JWT_SECRET: str
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
+    REFRESH_TOKEN_EXPIRE_DAYS: int =  14
 
+    model_config = {
+        "extra": "ignore",
+        "env_file_encoding": "utf-8",
+    }
+
+class Config:
     def __init__(self, env_file: str | None = None):
         self.app = AppConfig(_env_file=env_file)
+        self.jwt = JWTConfig(_env_file=env_file)
         self.db = DatabaseConfig(_env_file=env_file)
