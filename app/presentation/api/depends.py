@@ -16,6 +16,9 @@ async def book_protocol():
 async def chapter_protocol():
     raise NotImplementedError("Должен быть переопределён в инфра слое ")
 
+async def storage():    
+    raise NotImplementedError("Должен быть переопределён в инфра слое ")
+
 async def get_current_user(
     token: HTTPAuthorizationCredentials = Security(bearer_scheme),
     token_verifier: AbstractJwtVerifier = Depends(token_verifier)
