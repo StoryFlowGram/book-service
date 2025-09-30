@@ -2,11 +2,14 @@ import aioboto3
 from app.infrastructure.config.config import Config
 import logging
 import tempfile
+import httpx
+
+from app.application.interfaces.storage import AbstractStorage
 
 config = Config(".env")
 logger = logging.getLogger(__name__)
 
-class S3Storage:
+class S3Storage(AbstractStorage):
     def __init__(self):
         self.endpoint_url = config.s3.S3_ENDPOINT_URL
         self.bucket_name = config.s3.S3_BUCKET_NAME
@@ -129,3 +132,26 @@ class S3Storage:
     async def upload_cover(self, book_title: str, cover_data: bytes) -> str:
         object_name = f"books/covers/{book_title.replace(' ', '_')}.jpg"
         return await self.upload_bytes(cover_data, object_name, content_type='image/jpeg')
+    
+    async def get_object_content(self, s3_url: str) -> str:
+        parsed_url = httpx.URL(s3_url)
+        path_parts = parsed_url.path.strip('/').split('/', 1)
+        if len(path_parts) != 2:
+            raise ValueError("Некорректный S3 URL")
+        bucket, key = path_parts
+
+        async with self.session.client(
+            's3',
+            endpoint_url=self.endpoint_url,
+            aws_access_key_id=self.aws_access_key_id,
+            aws_secret_access_key=self.aws_secret_access_key,
+            region_name=self.region_name
+        ) as s3:
+            try:
+                response = await s3.get_object(Bucket=bucket, Key=key)
+                content = await response['Body'].read()
+                return content.decode('utf-8', errors='ignore')
+            except Exception as e:
+                if e.response['Error']['Code'] == 'NoSuchKey':
+                    raise ValueError("Файл не найден в MinIO")
+                raise e
