@@ -1,5 +1,7 @@
+import uuid
 from typing import Optional
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, File, HTTPException, Depends, UploadFile
+from loguru import logger
 
 from app.application.usecase.book.create_book import CreateBookUsecase
 from app.application.usecase.book.update_book import UpdateBookUsecase
@@ -8,11 +10,15 @@ from app.application.usecase.book.delete_book import DeleteBookUsecase
 from app.application.usecase.book.list_book import BookListUsecase
 from app.application.usecase.book.find_by_title_book import FindByTitleBookUsecase
 
+
 from app.presentation.schemas.book.add_book_schemas import AddBookResponseSchema, AddBookRequestSchema
 from app.presentation.schemas.book.update_book_schemas import UpdateBookRequestSchema, UpdateBookResponseSchema
 from app.presentation.schemas.book.get_book_schemas import GetBookResponseSchemas
+from app.presentation.api.depends import book_protocol, get_current_user
 
-from app.presentation.api.depends import book_protocol, token_verifier, get_current_user
+from app.infrastructure.s3.s3_storage import S3Storage
+from app.infrastructure.taskiq.broker import broker
+from app.infrastructure.taskiq.tasks import process_epub
 
 
 book_router = APIRouter(
@@ -104,3 +110,33 @@ async def find_by_title_author(
         return find_by_title_author
     except Exception as e:
         raise HTTPException(status_code=400, detail = str(e))
+
+
+@book_router.post("/admin/add-book")
+async def admin_add_book(
+    file: UploadFile = File(...),
+    difficulty: int = None,
+):
+    if not file.filename.endswith('.epub'):
+        raise HTTPException(status_code=400, detail="Только EPUB файлы разрешены")
+    
+    s3_storage = S3Storage()
+    object_name = f"temp_epubs/{uuid.uuid4()}_{file.filename}"
+    
+    try:
+        logger.info(f"Начинаю загрузку файла {object_name} в эндпоинте...")
+        file.file.seek(0)
+        s3_url = await s3_storage.upload_fileobj(file.file, object_name)
+        logger.info(f"Файл {object_name} загружен в S3: {s3_url}")
+        
+        if difficulty is not None:
+            task = await process_epub.kiq(object_name, difficulty)
+        else:
+            task = await process_epub.kiq(object_name)
+        
+        return {"status": "Задача на добавление книги поставлена"}
+        
+    except Exception as e:
+        logger.error(f"Ошибка в эндпоинте: {str(e)}")
+        await s3_storage.delete_object(object_name)
+        raise HTTPException(status_code=500, detail=f"Ошибка: {str(e)}")
