@@ -1,11 +1,5 @@
-from fastapi import Depends, HTTPException, Security
-from jwt import InvalidTokenError, ExpiredSignatureError
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-
-from app.application.interfaces.jwt_verifier import AbstractJwtVerifier
-
-
-bearer_scheme = HTTPBearer()
+from fastapi import Depends, Header, HTTPException, status, Request
+from loguru import logger
 
 def token_verifier():
     raise NotImplementedError("Должен быть переопределён в инфра слое ")
@@ -19,23 +13,23 @@ async def chapter_protocol():
 async def storage():    
     raise NotImplementedError("Должен быть переопределён в инфра слое ")
 
-async def get_current_user(
-    token: HTTPAuthorizationCredentials = Security(bearer_scheme),
-    token_verifier: AbstractJwtVerifier = Depends(token_verifier)
-):
-    jwt_token = token.credentials
+async def get_current_user(request:Request, x_user_id: str = Header(None)):
+    if x_user_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="X-User-Id хедер потерян или не найден"
+        )
     try:
-        user_id = token_verifier.get_user_id(jwt_token)
-        return user_id
-    except ExpiredSignatureError:
+        return int(x_user_id)
+
+    except ValueError:
         raise HTTPException(
-            status_code=401,
-            detail="Токен истёк",
-            headers={"WWW-Authenticate": "Bearer"}
-        )
-    except InvalidTokenError:
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="X-User-Id хедер должен быть int")
+
+async def get_check_admin(
+    x_admin: str = Header(None, alias="x-user-role"), 
+    x_user_id = Depends(get_current_user)):
+    if x_admin != "admin":
         raise HTTPException(
-            status_code=401,
-            detail="Токен не валидный",
-            headers={"WWW-Authenticate": "Bearer"}
+            status_code=status.HTTP_403_FORBIDDEN, detail="Недостаточно прав"
         )
+    return {"x-admin": x_admin, "x-user-id": x_user_id}
