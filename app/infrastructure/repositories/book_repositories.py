@@ -27,10 +27,12 @@ class BookRepository(AbstractBookProtocol):
             return None
         return orm_to_domain(orm)
     
-    async def list(self, limit: int = 20, cursor: Optional[str] = None):
-        stmt = select(BookModel).order_by(BookModel.id.asc()).limit(limit)
+    async def list(self, limit: int , cursor: Optional[str] = None):
+        stmt = select(BookModel)
         if cursor:
             stmt = stmt.where(BookModel.id > cursor)
+        stmt = stmt.order_by(BookModel.id.asc())
+        stmt = stmt.limit(limit)
         result = await self.session_factory.execute(stmt)
         rows = result.scalars().all()
         return [orm_to_domain(row)

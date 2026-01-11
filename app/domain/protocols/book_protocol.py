@@ -14,7 +14,7 @@ class AbstractBookProtocol(ABC):
         ...
     
     @abstractmethod
-    async def list(self, limit: int = 20, cursor: Optional[str] = None):
+    async def list(self, limit: int = 20, cursor: Optional[int] = None):
         ...
 
     @abstractmethod

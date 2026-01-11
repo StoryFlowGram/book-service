@@ -9,7 +9,11 @@ class AbstractChapterProtocol:
         ...
 
     @abstractmethod
-    async def get_chapter_by_id(self, chapter_id: int):
+    async def get_chapters_by_book_id(self, book_id: int) -> list | list[Chapter]:
+        ...
+
+    @abstractmethod
+    async def get_chapter_by_id(self, chapter_id: int) -> Chapter:
         ...
 
     @abstractmethod

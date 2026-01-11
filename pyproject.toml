@@ -26,6 +26,7 @@ dependencies = [
     "aiofiles (>=24.1.0,<25.0.0)",
     "beautifulsoup4 (>=4.13.5,<5.0.0)",
     "taskiq-fastapi (>=0.3.5,<0.4.0)",
+    "shell (>=1.0.1,<2.0.0)",
 ]
 
 [build-system]

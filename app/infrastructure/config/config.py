@@ -3,17 +3,17 @@ from sqlalchemy import URL
 
 
 class DatabaseConfig(BaseSettings):
-    DB_USER: str
-    DB_PASSWORD: str
-    DB_HOST: str
+    POSTGRES_USER: str
+    POSTGRES_PASSWORD: str
+    POSTGRES_DB: str
     DB_NAME: str
 
     def get_database_url(self, DB_API: str) -> URL:
         return URL.create(
             drivername=f"postgresql+{DB_API}",
-            username=self.DB_USER,
-            password=self.DB_PASSWORD,
-            host=self.DB_HOST,
+            username=self.POSTGRES_USER,
+            password=self.POSTGRES_PASSWORD,
+            host=self.POSTGRES_DB,
             database=self.DB_NAME,
         )
 
@@ -34,16 +34,6 @@ class AppConfig(BaseSettings):
     }
 
 
-class JWTConfig(BaseSettings):
-    JWT_ALGORITHM: str
-    JWT_SECRET: str
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
-    REFRESH_TOKEN_EXPIRE_DAYS: int =  14
-
-    model_config = {
-        "extra": "ignore",
-        "env_file_encoding": "utf-8",
-    }
 
 class S3Config(BaseSettings):
     MINIO_ROOT_USER: str
@@ -70,7 +60,6 @@ class TaskiqConfig(BaseSettings):
 class Config:
     def __init__(self, env_file: str | None = None):
         self.app = AppConfig(_env_file=env_file)
-        self.jwt = JWTConfig(_env_file=env_file)
         self.db = DatabaseConfig(_env_file=env_file)
         self.taskiq = TaskiqConfig(_env_file=env_file)
         self.s3 = S3Config(_env_file=env_file)
