@@ -1,6 +1,6 @@
 from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import Optional
+from loguru import logger
 
 
 from app.domain.protocols.chapter_protocol import AbstractChapterProtocol
@@ -20,10 +20,19 @@ class ChapterRepository(AbstractChapterProtocol):
         await self.session_factory.refresh(orm)
         return orm_to_domain(orm)
     
+    #Должен выдавать все главы по id книги
+    async def get_chapters_by_book_id(self, book_id: int):
+        stmt = select(ChapterModel).where(ChapterModel.book_id == book_id).order_by(ChapterModel.order_number)
+        result = await self.session_factory.execute(stmt)
+        orm = result.scalars().unique().all()
+        logger.info(f"get_chapter_by_id вот что в нем {orm}")
+        if not orm:
+            return []
+        return [orm_to_domain(chapter) for chapter in orm]
+    
+
     async def get_chapter_by_id(self, chapter_id: int):
-        stmt = select(ChapterModel).where(
-            ChapterModel.id == chapter_id
-        )
+        stmt = select(ChapterModel).where(ChapterModel.id == chapter_id)
         result = await self.session_factory.execute(stmt)
         orm = result.scalars().one_or_none()
         if not orm:
