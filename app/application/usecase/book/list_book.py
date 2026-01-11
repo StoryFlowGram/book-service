@@ -7,12 +7,18 @@ class BookListUsecase:
     def __init__(self, protocol: AbstractBookProtocol):
         self.protocol = protocol
 
-    async def __call__(self, limit: int = 20, cursor: Optional[str] = None):
+    async def __call__(self, limit: int = 20, cursor: Optional[int] = None):
         get_list_book = await self.protocol.list(limit, cursor)
         if not get_list_book:
             raise Exception("Книги не найдены")
+        else:
+            next_cursor = None
+            last_book = get_list_book[-1]
+            next_cursor = last_book.id
+            if len(get_list_book) < limit:
+                next_cursor = None
 
-        return [
+        book_dtos =[
             BookDTO(
                 id=book.id,
                 title=book.title,
@@ -22,3 +28,7 @@ class BookListUsecase:
                 difficulty=book.difficulty
             ) for book in get_list_book
         ]
+        return {
+            "items": book_dtos,
+            "next_cursor": next_cursor
+        }
