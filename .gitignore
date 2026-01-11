@@ -19,6 +19,7 @@ lib/
 lib64/
 parts/
 sdist/
+poetry.lock
 var/
 wheels/
 share/python-wheels/
@@ -168,5 +169,6 @@ poetry.toml
 
 # LSP config files
 pyrightconfig.json
+docker-compose-dev.yml
 
 # End of https://www.toptal.com/developers/gitignore/api/python
