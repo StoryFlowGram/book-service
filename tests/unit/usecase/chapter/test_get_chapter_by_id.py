@@ -1,5 +1,5 @@
 import pytest
-from app.application.usecase.chapter.get_chapter_by_id import GetChapterByIdUsecase
+from app.application.usecase.chapter.get_chapters_by_book_id import GetChapterByIdUsecase
 from app.domain.entity.chapter import Chapter
 from app.domain.protocols.chapter_protocol import AbstractChapterProtocol
 from app.application.dto.chapter.chapter import ChapterDTO

@@ -5,7 +5,7 @@ from pytest_mock import MockerFixture
 
 from app.application.usecase.chapter.add_chapter import AddChapterUsecase
 from app.application.usecase.chapter.delete_chapter import DeleteChapterUsecase
-from app.application.usecase.chapter.get_chapter_by_id import GetChapterByIdUsecase
+from app.application.usecase.chapter.get_chapters_by_book_id import GetChapterByIdUsecase
 from app.domain.protocols.chapter_protocol import AbstractChapterProtocol
 from app.domain.protocols.book_protocol import AbstractBookProtocol 
 from app.domain.entity.chapter import Chapter
