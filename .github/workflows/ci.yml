@@ -28,6 +28,13 @@ jobs:
   
         run: poetry install --no-interaction --no-root
 
+      - name: Подготовка к сборке Docker-образа
+        id: prep
+        run: |
+          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          echo "image_id=$IMAGE_ID" >> $GITHUB_OUTPUT
+
       - name: Логинимся в GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -40,7 +47,4 @@ jobs:
         with:
             context: .
             push: true
-            tags: |
-                ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:latest
-        env:
-            REPOSITORY: ${{ github.repository }}
+            tags: ${{ steps.prep.outputs.image_id }}:latest
