@@ -20,5 +20,6 @@ RUN poetry config virtualenvs.create false && \
 COPY . .
 
 
-CMD alembic upgrade head && \
-    poetry run uvicorn main:app --host 0.0.0.0 --port 8000
+RUN chmod +x scripts/entrypoint.sh
+
+ENTRYPOINT ["scripts/entrypoint.sh"]

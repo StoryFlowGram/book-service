@@ -4,7 +4,7 @@ from app.domain.enum.difficulty import Difficulty
 
 
 @dataclass(frozen=True)
-class BookDTO:
+class   BookDTO:
     title: str
     author: str
     description: str

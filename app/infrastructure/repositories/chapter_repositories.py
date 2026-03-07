@@ -6,6 +6,7 @@ from loguru import logger
 from app.domain.protocols.chapter_protocol import AbstractChapterProtocol
 from app.domain.entity.chapter import Chapter as ChapterDomain
 from app.infrastructure.models.chapter_model import Chapter as ChapterModel
+from app.infrastructure.models.book_model import Book as BookModel
 from app.infrastructure.mappers.chapter_mapper import orm_to_domain, domain_to_orm
 
 

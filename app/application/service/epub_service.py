@@ -3,9 +3,13 @@ from typing import List
 from bs4 import BeautifulSoup
 from ebooklib import epub, ITEM_DOCUMENT, ITEM_IMAGE
 
+
+
+
 class EpubService:
-
-
+    """
+    Специальный класс для чтения метаданных из epub
+    """
     def __init__(self):
         self.loop = asyncio.get_running_loop()
 

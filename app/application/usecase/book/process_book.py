@@ -45,21 +45,31 @@ class ProcessBookUsecase:
                 difficulty=Difficulty(difficulty) if difficulty else None
             )
             created_book = await self.book_repo.add(book_entity)
-            logger.info(f"Книга созданная: {created_book.title} (ID: {created_book.id})")
+            logger.info(f"Книга создана: {created_book.title} (ID: {created_book.id})")
 
             chapters_data = await self.epub_service.extract_chapters(metadata["book_obj"])
             
+            seen_titles = set()
+
             for chap in chapters_data:
+                original_title = chap["title"].strip()
+                final_title = original_title
+
+                if original_title in seen_titles: 
+                    final_title = f"{original_title} ({chap['order_number']})"
+                    
+                seen_titles.add(original_title)
+                
                 s3_chapter_url = await self.storage.upload_chapter_text(
                     created_book.id, 
                     chap["order_number"], 
                     chap["text"]
                 )
-            
+
                 chapter_entity = ChapterEntity(
                     id=0,
                     book_id=created_book.id,
-                    title=chap["title"],
+                    title=final_title,
                     order_number=chap["order_number"],
                     word_count=chap["word_count"],
                     s3_url=s3_chapter_url
