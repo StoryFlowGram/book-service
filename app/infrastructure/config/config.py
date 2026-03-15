@@ -26,7 +26,7 @@ class DatabaseConfig(BaseSettings):
 class AppConfig(BaseSettings):
     DEBUG: bool = True
     ENVIRONMENT: str = "production" 
-    SECRET_KEY: str = "dev-secret" 
+    SECRET_KEY: str = "dev-secret" ''
 
     model_config = {
         "extra": "ignore",
