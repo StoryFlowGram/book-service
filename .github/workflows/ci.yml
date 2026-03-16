@@ -69,10 +69,10 @@ jobs:
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             
             # Завантажуємо нові образи
-            docker compose -f docker-compose-prod.yml pull
+            docker compose -f docker-compose-prod.yaml pull
             
             # Перезапускаємо
-            docker compose -f docker-compose-prod.yml up -d --remove-orphans
+            docker compose -f docker-compose-prod.yaml up -d --remove-orphans
             
             # Чистимо сміття
             docker image prune -f
