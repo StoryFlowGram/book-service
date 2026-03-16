@@ -11,15 +11,15 @@ WORKDIR /app
 
 RUN pip install --no-cache-dir poetry
 
-
-COPY pyproject.toml poetry.lock ./
+COPY pyproject.toml  poetry.lock ./
 RUN poetry config virtualenvs.create false && \
     poetry install --no-interaction --no-ansi --no-root
 
-
 COPY . .
+
+RUN sed -i 's/\r$//' scripts/entrypoint.sh
 
 
 RUN chmod +x scripts/entrypoint.sh
 
-ENTRYPOINT ["scripts/entrypoint.sh"]
+ENTRYPOINT ["sh", "/app/scripts/entrypoint.sh"]

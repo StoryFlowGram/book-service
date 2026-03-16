@@ -1,10 +1,17 @@
-#!/bin/sh
-set -e
+#!/usr/bin/env sh
+set -eu
 
-export PYTHONPATH=$PYTHONPATH:.
+cd /app
 
-echo "Запуск миграций"
-poetry run alembic upgrade head
+export PYTHONPATH="${PYTHONPATH:+$PYTHONPATH:}/app"
 
-echo "Запуск Uvicorn"
-exec poetry run uvicorn main:app --host 0.0.0.0 --port 8000
+if [ "$#" -gt 0 ]; then
+    echo "Запуск команди: $*"
+    exec "$@"
+fi
+
+echo "Міграція"
+alembic upgrade head
+
+echo "Запуск API"
+exec uvicorn main:app --host 0.0.0.0 --port 8000
