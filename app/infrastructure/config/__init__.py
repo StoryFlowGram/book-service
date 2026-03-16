@@ -1,8 +1,7 @@
-from .config import Config, DatabaseConfig, AppConfig
+from .config import Config, DatabaseConfig
 
 __all__ = [
     "Config",
     "DatabaseConfig",
-    "AppConfig",
     "get_config",
 ]
