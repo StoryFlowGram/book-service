@@ -51,22 +51,10 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    needs: build-and-test 
-    if: github.ref == 'refs/heads/main' 
+    needs: build-and-test
+    if: github.ref == 'refs/heads/main'
 
     steps:
-      - name: Завантажуємо код (для доступу до docker-compose)
-        uses: actions/checkout@v4
-
-      - name: Копіюємо docker-compose та nginx на сервер
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.SSH_KEY }}
-          source: "docker-compose-prod.yml,nginx.conf"
-          target: "/home/deployer/sfg-app"
-
       - name: Виконуємо деплой на сервері
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -74,12 +62,17 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
+            # Переходимо в папку
             cd /home/deployer/sfg-app
             
+            # Логінимось у GHCR
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             
+            # Завантажуємо нові образи
             docker compose -f docker-compose-prod.yml pull
             
+            # Перезапускаємо
             docker compose -f docker-compose-prod.yml up -d --remove-orphans
             
+            # Чистимо сміття
             docker image prune -f
