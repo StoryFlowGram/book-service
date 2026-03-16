@@ -22,19 +22,6 @@ class DatabaseConfig(BaseSettings):
         "env_file_encoding": "utf-8",
     }
 
-
-class AppConfig(BaseSettings):
-    DEBUG: bool = True
-    ENVIRONMENT: str = "production" 
-    SECRET_KEY: str = "dev-secret" ''
-
-    model_config = {
-        "extra": "ignore",
-        "env_file_encoding": "utf-8",
-    }
-
-
-
 class S3Config(BaseSettings):
     MINIO_ROOT_USER: str
     MINIO_ROOT_PASSWORD: str
@@ -59,7 +46,6 @@ class TaskiqConfig(BaseSettings):
 
 class Config:
     def __init__(self, env_file: str | None = None):
-        self.app = AppConfig(_env_file=env_file)
         self.db = DatabaseConfig(_env_file=env_file)
         self.taskiq = TaskiqConfig(_env_file=env_file)
         self.s3 = S3Config(_env_file=env_file)
