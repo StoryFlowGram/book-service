@@ -1,6 +1,5 @@
 import os
 from logging.config import fileConfig
-from dotenv import load_dotenv
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 from alembic import context
@@ -8,16 +7,15 @@ from alembic import context
 from app.infrastructure.database.base import Base
 from app.infrastructure.models.book_model import Book
 from app.infrastructure.models.chapter_model import Chapter
+from app.infrastructure.config.config import Config
 
-load_dotenv(override=True)
 
-# this is the Alembic Config object, which provides
-# access to the values within the .ini file in use.
+app_config = Config()
 
-url = os.getenv("DATABASE_URL")
 config = context.config
+db_url = str(app_config.db.get_database_url(DB_API="psycopg2"))
 
-config.set_main_option("sqlalchemy.url", url)
+config.set_main_option("sqlalchemy.url", db_url)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
