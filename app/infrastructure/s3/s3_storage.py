@@ -6,16 +6,16 @@ import httpx
 
 from app.application.interfaces.storage import AbstractStorage
 
-config = Config(".env")
+config = Config()
 logger = logging.getLogger(__name__)
 
 class S3Storage(AbstractStorage):
     def __init__(self):
-        self.endpoint_url = config.s3.S3_ENDPOINT_URL
-        self.bucket_name = config.s3.S3_BUCKET_NAME
-        self.aws_access_key_id = config.s3.MINIO_ROOT_USER
-        self.aws_secret_access_key = config.s3.MINIO_ROOT_PASSWORD
-        self.region_name = config.s3.S3_REGION_NAME
+        self.endpoint_url = config.s3.s3_endpoint_url
+        self.bucket_name = config.s3.s3_bucket_name
+        self.aws_access_key_id = config.s3.minio_root_user
+        self.aws_secret_access_key = config.s3.minio_root_password
+        self.region_name = config.s3.s3_region_name
         self.session = aioboto3.Session()
 
     async def _ensure_bucket_exists(self):

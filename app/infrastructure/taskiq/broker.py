@@ -3,15 +3,15 @@ from taskiq_fastapi import init as taskiq_fastapi_init
 from app.infrastructure.config.config import Config
 from taskiq.middlewares import SmartRetryMiddleware
 
-config = Config(".env")
+config = Config()
 
 result_backend = RedisAsyncResultBackend(
-    redis_url=config.taskiq.TASKIQ_BROKER_URL,
+    redis_url=config.taskiq.taskiq_broker_url,
     result_ex_time=3600
 )
 
 broker = RedisStreamBroker(
-    url=config.taskiq.TASKIQ_BROKER_URL,
+    url=config.taskiq.taskiq_broker_url,
 ).with_result_backend(result_backend)
 
 broker = broker.with_middlewares(

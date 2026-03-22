@@ -1,51 +1,43 @@
-from pydantic_settings import BaseSettings
+from pydantic import Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy import URL
 
-
 class DatabaseConfig(BaseSettings):
-    POSTGRES_USER: str
-    POSTGRES_PASSWORD: str
-    POSTGRES_DB: str
-    DB_NAME: str
+    model_config = SettingsConfigDict(extra="ignore")
+
+    user: str = Field(alias="BOOK_DB_USER")
+    password: str = Field(alias="BOOK_DB_PASSWORD")
+    db_name: str = Field(alias="BOOK_DB_NAME")
+    
+    host: str = Field(default="book-db", alias="BOOK_DB_HOST")
+    port: int = 5432
 
     def get_database_url(self, DB_API: str) -> URL:
         return URL.create(
             drivername=f"postgresql+{DB_API}",
-            username=self.POSTGRES_USER,
-            password=self.POSTGRES_PASSWORD,
-            host=self.POSTGRES_DB,
-            database=self.DB_NAME,
+            username=self.user,
+            password=self.password,
+            host=self.host,
+            port=self.port,
+            database=self.db_name,
         )
 
-    model_config = {
-        "extra": "ignore",
-        "env_file_encoding": "utf-8",
-    }
-
 class S3Config(BaseSettings):
-    MINIO_ROOT_USER: str
-    MINIO_ROOT_PASSWORD: str
-    S3_REGION_NAME: str
-    S3_BUCKET_NAME: str 
-    S3_ENDPOINT_URL: str
+    model_config = SettingsConfigDict(extra="ignore")
 
-
-    model_config = {
-        "extra": "ignore",
-        "env_file_encoding": "utf-8",
-    }
+    minio_root_user: str = Field(alias="MINIO_ROOT_USER")
+    minio_root_password: str = Field(alias="MINIO_ROOT_PASSWORD")
+    s3_region_name: str = Field(alias="S3_REGION_NAME")
+    s3_bucket_name: str = Field(alias="S3_BUCKET_NAME")
+    s3_endpoint_url: str = Field(alias="S3_ENDPOINT_URL")
 
 class TaskiqConfig(BaseSettings):
-    TASKIQ_BROKER_URL: str
+    model_config = SettingsConfigDict(extra="ignore")
 
-    model_config = {
-        "extra": "ignore",
-        "env_file_encoding": "utf-8",
-    }
-
+    taskiq_broker_url: str = Field(alias="TASKIQ_BROKER_URL")
 
 class Config:
-    def __init__(self, env_file: str | None = None):
-        self.db = DatabaseConfig(_env_file=env_file)
-        self.taskiq = TaskiqConfig(_env_file=env_file)
-        self.s3 = S3Config(_env_file=env_file)
+    def __init__(self):
+        self.db = DatabaseConfig()
+        self.taskiq = TaskiqConfig()
+        self.s3 = S3Config()

@@ -13,8 +13,8 @@ from app.infrastructure.config.config import Config
 app_config = Config()
 
 config = context.config
-db_url = str(app_config.db.get_database_url(DB_API="psycopg2"))
-
+url_obj = app_config.db.get_database_url(DB_API="psycopg2")
+db_url = url_obj.render_as_string(hide_password=False)
 config.set_main_option("sqlalchemy.url", db_url)
 
 # Interpret the config file for Python logging.
