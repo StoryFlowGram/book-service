@@ -7,6 +7,7 @@ from alembic import context
 from app.infrastructure.database.base import Base
 from app.infrastructure.models.book_model import Book
 from app.infrastructure.models.chapter_model import Chapter
+from app.infrastructure.models.book_upload_job_model import BookUploadJob
 from app.infrastructure.config.config import Config
 
 
