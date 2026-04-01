@@ -1,4 +1,4 @@
-name: CI Pipeline
+﻿name: CI Pipeline
 
 on:
   push:
@@ -13,40 +13,42 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Завантажуємо код репозиторію
+      - name: Р—Р°РІР°РЅС‚Р°Р¶СѓС”РјРѕ РєРѕРґ СЂРµРїРѕР·РёС‚РѕСЂС–СЋ
         uses: actions/checkout@v4
 
-      - name: Встановлюємо Python 3.12
+      - name: Р’СЃС‚Р°РЅРѕРІР»СЋС”РјРѕ Python 3.12
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
-      - name: Встановлюємо Poetry
+      - name: Р’СЃС‚Р°РЅРѕРІР»СЋС”РјРѕ Poetry
         run: pip install poetry
 
-      - name: Встановлюємо залежності проекту
+      - name: Р’СЃС‚Р°РЅРѕРІР»СЋС”РјРѕ Р·Р°Р»РµР¶РЅРѕСЃС‚С– РїСЂРѕРµРєС‚Сѓ
         run: poetry install --no-interaction --no-root
 
-      - name: Підготовка до збірки Docker-образу
+      - name: РџС–РґРіРѕС‚РѕРІРєР° РґРѕ Р·Р±С–СЂРєРё Docker-РѕР±СЂР°Р·Сѓ
         id: prep
         run: |
           IMAGE_ID=ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
           echo "image_id=$IMAGE_ID" >> $GITHUB_OUTPUT
 
-      - name: Логінимось у GitHub Container Registry
+      - name: Р›РѕРіС–РЅРёРјРѕСЃСЊ Сѓ GitHub Container Registry
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }} 
           password: ${{ secrets.GITHUB_TOKEN }} 
 
-      - name: Збираємо та пушимо Docker-образ у GCR
+      - name: Р—Р±РёСЂР°С”РјРѕ С‚Р° РїСѓС€РёРјРѕ Docker-РѕР±СЂР°Р· Сѓ GCR
         uses: docker/build-push-action@v5
         with:
             context: .
-            push: true
-            tags: ${{ steps.prep.outputs.image_id }}:latest
+            push: ${{ github.event_name != 'pull_request' }}
+            tags: |
+              ${{ steps.prep.outputs.image_id }}:latest
+              ${{ steps.prep.outputs.image_id }}:sha-${{ github.sha }}
 
 
   deploy:
@@ -55,24 +57,25 @@ jobs:
     if: github.ref == 'refs/heads/main'
 
     steps:
-      - name: Виконуємо деплой на сервері
+      - name: Р’РёРєРѕРЅСѓС”РјРѕ РґРµРїР»РѕР№ РЅР° СЃРµСЂРІРµСЂС–
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            # Переходимо в папку
+            # РџРµСЂРµС…РѕРґРёРјРѕ РІ РїР°РїРєСѓ
             cd /home/deployer/sfg-app
             
-            # Логінимось у GHCR
+            # Р›РѕРіС–РЅРёРјРѕСЃСЊ Сѓ GHCR
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             
-            # Завантажуємо нові образи
+            # Р—Р°РІР°РЅС‚Р°Р¶СѓС”РјРѕ РЅРѕРІС– РѕР±СЂР°Р·Рё
             docker compose -f docker-compose-prod.yaml pull
             
-            # Перезапускаємо
+            # РџРµСЂРµР·Р°РїСѓСЃРєР°С”РјРѕ
             docker compose -f docker-compose-prod.yaml up -d --remove-orphans
             
-            # Чистимо сміття
+            # Р§РёСЃС‚РёРјРѕ СЃРјС–С‚С‚СЏ
             docker image prune -f
+
