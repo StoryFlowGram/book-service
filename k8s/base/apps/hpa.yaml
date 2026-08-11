@@ -1,0 +1,52 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: book-service-hpa
+  namespace: default
+  labels:
+    app: book-service
+    env: production
+
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: book-service
+
+  # Границы масштабирования.
+  minReplicas: 1      # минимум реплик
+  maxReplicas: 5      # максимум реплик
+
+  metrics:
+    # Масштабирование по CPU: если средняя загрузка > 70% — добавить под.
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+
+    # Масштабирование по RAM: если средняя загрузка > 80% — добавить под.
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+
+  behavior:
+    # Быстро скейлим вверх при нагрузке.
+    scaleUp:
+      stabilizationWindowSeconds: 30    # ждём 30 сек перед добавлением подов
+      policies:
+        - type: Pods
+          value: 2                      # максимум +2 пода за раз
+          periodSeconds: 60
+
+    # Медленно скейлим вниз, чтобы не убить поды при кратковременном спаде.
+    scaleDown:
+      stabilizationWindowSeconds: 300   # ждём 5 минут перед удалением подов
+      policies:
+        - type: Pods
+          value: 1                      # максимум -1 под за раз
+          periodSeconds: 60

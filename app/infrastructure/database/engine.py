@@ -5,5 +5,5 @@ config = Config()
 
 engine = create_async_engine(
     url=config.db.get_database_url("asyncpg"),
-    echo=True,
+    echo=False,
 )

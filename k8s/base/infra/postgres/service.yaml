@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-book
+  namespace: default
+  labels:
+    app: postgres-book
+    env: production
+spec:
+  # ClusterIP нужен, чтобы другие поды могли ходить в PostgreSQL по DNS-имени postgres-book.
+  type: ClusterIP
+  # Селектор направляет трафик только на Pod с app=postgres-book.
+  selector:
+    app: postgres-book
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: postgres

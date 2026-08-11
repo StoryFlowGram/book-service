@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-book
+  namespace: default
+  labels:
+    app: postgres-book
+    env: production
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-book
+  template:
+    metadata:
+      labels:
+        app: postgres-book
+        env: production
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: postgres
+              containerPort: 5432
+          envFrom:
+            - secretRef:
+                name: book-service-secrets
+          env:
+            # PGDATA указывает, где PostgreSQL хранит данные внутри volume.
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          volumeMounts:
+            # PVC подключается сюда, чтобы данные переживали пересоздание Pod.
+            - name: data
+              mountPath: /var/lib/postgresql/data
+          readinessProbe:
+            # pg_isready показывает, готов ли сервер принимать подключения.
+            exec:
+              command:
+                - sh
+                - -c
+                - pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB" -h 127.0.0.1
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+          livenessProbe:
+            # Если pg_isready падает, kubelet перезапустит контейнер.
+            exec:
+              command:
+                - sh
+                - -c
+                - pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB" -h 127.0.0.1
+            initialDelaySeconds: 20
+            periodSeconds: 20
+            timeoutSeconds: 5
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: postgres-book-data

@@ -10,5 +10,5 @@ class Book:
     title: str
     author: str
     description: str
-    pic_url: str
+    pic_url: Optional[str]
     difficulty: Optional[Difficulty]

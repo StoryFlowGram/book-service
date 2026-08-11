@@ -104,10 +104,9 @@ ipython_config.py
 #pdm.lock
 #   pdm stores project-wide configurations in .pdm.toml, but it is recommended to not include it
 #   in version control.
-todo
 #   https://pdm.fming.dev/#use-with-ide
 .pdm.toml
-
+k8s/base/shared
 # PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
 __pypackages__/
 
@@ -172,3 +171,5 @@ pyrightconfig.json
 docker-compose-dev.yml
 
 # End of https://www.toptal.com/developers/gitignore/api/python
+# Ignore k8s secrets
+k8s/**/secret.yaml

@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minio
+  namespace: default
+  labels:
+    app: minio
+    env: production
+spec:
+  # MinIO Deployment хранит S3-совместимое файловое хранилище.
+  replicas: 1
+  selector:
+    matchLabels:
+      app: minio
+  template:
+    metadata:
+      labels:
+        app: minio
+        env: production
+    spec:
+      containers:
+        - name: minio
+          image: minio/minio:latest
+          imagePullPolicy: IfNotPresent
+          args:
+            - server
+            - /data
+            - --console-address
+            - :9001
+          ports:
+            - name: api
+              containerPort: 9000
+            - name: console
+              containerPort: 9001
+          envFrom:
+            # Берём MINIO_* и S3_* настройки из общего Secret.
+            - secretRef:
+                name: book-service-secrets
+          volumeMounts:
+            # Данные MinIO должны жить на PVC, а не внутри контейнера.
+            - name: data
+              mountPath: /data
+          readinessProbe:
+            # Health endpoint сообщает, что object storage готов.
+            httpGet:
+              path: /minio/health/live
+              port: api
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+          livenessProbe:
+            # Если health endpoint недоступен, Pod перезапускается.
+            httpGet:
+              path: /minio/health/live
+              port: api
+            initialDelaySeconds: 20
+            periodSeconds: 20
+            timeoutSeconds: 5
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: minio-data

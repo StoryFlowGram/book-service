@@ -2,7 +2,7 @@ from app.domain.entity.chapter import Chapter as ChapterDomain
 from app.infrastructure.models.chapter_model import Chapter as ChapterModel
 
 def orm_to_domain(orm: ChapterModel) -> ChapterDomain:
-    return ChapterModel(
+    return ChapterDomain(
         id=orm.id,
         book_id = orm.book_id,
         title = orm.title,

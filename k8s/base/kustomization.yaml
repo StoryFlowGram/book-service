@@ -1,0 +1,16 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: default
+resources:
+  - shared/secret.yaml
+  - infra/postgres/pvc.yaml
+  - infra/postgres/deployment.yaml
+  - infra/postgres/service.yaml
+  - infra/rabbitmq/deployment.yaml
+  - infra/rabbitmq/service.yaml
+  - infra/minio/pvc.yaml
+  - infra/minio/deployment.yaml
+  - infra/minio/service.yaml
+  - apps/deployment.yaml
+  - apps/service.yaml
+  - apps/hpa.yaml

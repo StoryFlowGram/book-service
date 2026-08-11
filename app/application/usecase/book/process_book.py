@@ -7,6 +7,7 @@ from app.domain.protocols.book_protocol import AbstractBookProtocol
 from app.domain.protocols.chapter_protocol import AbstractChapterProtocol
 from app.application.interfaces.storage import AbstractStorage
 from app.application.service.epub_service import EpubService
+from app.application.service.cover_fallback_service import build_fallback_cover_svg
 
 logger = logging.getLogger(__name__)
 
@@ -33,8 +34,24 @@ class ProcessBookUsecase:
             metadata = await self.epub_service.read_metadata(local_path)
             
             pic_url = None
-            if metadata["cover_content"]:
-                pic_url = await self.storage.upload_cover(metadata["title"], metadata["cover_content"])
+            cover_content = metadata.get("cover_content")
+            cover_content_type = metadata.get("cover_content_type")
+            cover_file_name = metadata.get("cover_file_name")
+
+            if not cover_content:
+                cover_content = build_fallback_cover_svg(
+                    metadata.get("title"),
+                    metadata.get("author"),
+                )
+                cover_content_type = "image/svg+xml"
+                cover_file_name = "fallback_cover.svg"
+
+            pic_url = await self.storage.upload_cover(
+                metadata["title"],
+                cover_content,
+                cover_content_type,
+                cover_file_name,
+            )
 
             book_entity = BookEntity(
                 id=0,
@@ -61,9 +78,9 @@ class ProcessBookUsecase:
                 seen_titles.add(original_title)
                 
                 s3_chapter_url = await self.storage.upload_chapter_text(
-                    created_book.id, 
-                    chap["order_number"], 
-                    chap["text"]
+                    created_book.id,
+                    chap["order_number"],
+                    chap["content_html"],
                 )
 
                 chapter_entity = ChapterEntity(
@@ -77,7 +94,18 @@ class ProcessBookUsecase:
                 await self.chapter_repo.add(chapter_entity)
 
             logger.info(f"Все главы добавлены в книгу {created_book.id}")
-            return {"status": "success", "book_id": created_book.id}
+            return {
+                "status": "success",
+                "book_id": created_book.id,
+                "book_payload": {
+                    "id": created_book.id,
+                    "title": created_book.title,
+                    "author": created_book.author,
+                    "description": created_book.description or "",
+                    "pic_url": created_book.pic_url,
+                    "difficulty": created_book.difficulty,
+                },
+            }
 
         except Exception as e:
             logger.error(f"Ошибка UseCase: {e}")

@@ -10,7 +10,8 @@ class GetBookResponseSchemas(BaseModel):
     title: str
     author: str
     description: str
-    pic_url: str
+    pic_url: Optional[str] = None
+    cover_url: Optional[str] = None
 
 
 class GetBookListResponse(BaseModel):
